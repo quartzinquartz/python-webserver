@@ -5,7 +5,8 @@ import time
 from http.server import HTTPServer
 from server import Server
 
-HOST_NAME = 'localhost'
+# When containerized, '0.0.0.0' allows you to hit localhost:8000 from your host machine:
+HOST_NAME = '0.0.0.0'
 PORT_NUMBER = 8000
 
 if __name__ == '__main__':
