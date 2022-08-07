@@ -5,8 +5,7 @@ import time
 from http.server import HTTPServer
 from server import Server
 
-# HOST_NAME could be 'localhost' or DNS name where needed:
-HOST_NAME = requests.get('https://checkip.amazonaws.com').text.strip() 
+HOST_NAME = 'localhost'
 PORT_NUMBER = 8000
 
 if __name__ == '__main__':
