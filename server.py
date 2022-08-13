@@ -1,8 +1,7 @@
 import os
 from http.server import BaseHTTPRequestHandler
-# from urllib import response
 from routes.main import routes
-# from pathlib import Path
+from response.staticHandler import StaticHandler
 from response.templateHandler import TemplateHandler
 from response.badRequestHandler import BadRequestHandler
 
@@ -17,34 +16,40 @@ class Server(BaseHTTPRequestHandler):
         split_path = os.path.splitext(self.path)
         request_extension = split_path[1]
 
-        if request_extension == "" or request_extension == ".html":
+        if request_extension == '' or request_extension == '.html':
             if self.path in routes:
                 handler = TemplateHandler()
                 handler.find(routes[self.path])
             else:
                 handler = BadRequestHandler()
-        
-        else:
+        elif request_extension == '.py':
             handler = BadRequestHandler()
 
+        else:
+            handler = StaticHandler()
+            handler.find(self.path)
+
         self.respond({
+            'status': handler.getStatus(),
             'handler': handler
         })
 
-    def handle_http(self, handler):
-        status_code = handler.getStatus()
+    def handle_http(self, status_code, handler):
         self.send_response(status_code)
+        
         if status_code == 200:
             content = handler.getContents()
             self.send_header('Content-Type', handler.getContentType())
         else:
-            content = "404 Not Found. <Which way did he go, George?>"
-        
+            content = '404: Not Found.'
+
         self.end_headers()
 
-        return bytes(content, "UTF-8")
+        if isinstance( content, (bytes, bytearray) ):
+            return content
+
+        return bytes(content, 'UTF-8')
 
     def respond(self, opts):
-        response = self.handle_http(opts['handler'])
+        response = self.handle_http(opts['status'], opts['handler'])
         self.wfile.write(response)
-
